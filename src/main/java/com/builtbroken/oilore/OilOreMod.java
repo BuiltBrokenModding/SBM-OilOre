@@ -56,6 +56,8 @@ public class OilOreMod
 
         itemOil = new Item().setUnlocalizedName(DOMAIN + ":oilore").setTextureName(DOMAIN + ":oil_ore").setCreativeTab(CreativeTabs.tabMaterials);
         GameRegistry.registerItem(itemOil, "oilItem");
+
+        //TODO add fuel bucket
     }
 
     @Mod.EventHandler
@@ -77,7 +79,9 @@ public class OilOreMod
     @Mod.EventHandler
     public void postInit(FMLPostInitializationEvent event)
     {
-        //TODO recipe
+        //TODO recipe for fuel can
+        //TODO recipe for fuel bucket
+
         if (configuration.getBoolean("enable", "Furnace_Recipe", true, "Allows the oil ore block to oil clump item recipe to work as a furnace recipe."))
         {
             int outputStackSize = configuration.getInt("output_stack_size", "Furnace_Recipe", 1, 1, 64, "Number of oil clumps to output per block in a furnace.");
