@@ -14,18 +14,21 @@ import java.util.Random;
  */
 public class BlockOilOre extends Block
 {
+    private Random rand = new Random();
+
     public BlockOilOre()
     {
         super(Material.rock);
+        this.setHardness(1.5F);
+        this.setResistance(10.0F);
+        this.setStepSound(soundTypePiston);
         this.setCreativeTab(CreativeTabs.tabBlock);
         this.setBlockTextureName(OilOreMod.DOMAIN + ":oil_ore");
         this.setBlockName(OilOreMod.DOMAIN + ":oilore");
     }
 
-    private Random rand = new Random();
-
     @Override
-    public int getExpDrop(IBlockAccess p_149690_1_, int p_149690_5_, int p_149690_7_)
+    public int getExpDrop(IBlockAccess world, int p_149690_5_, int p_149690_7_)
     {
         return MathHelper.getRandomIntegerInRange(rand, 0, 2);
     }

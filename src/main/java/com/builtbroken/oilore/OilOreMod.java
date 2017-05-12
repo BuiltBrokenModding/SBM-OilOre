@@ -78,6 +78,11 @@ public class OilOreMod
     public void postInit(FMLPostInitializationEvent event)
     {
         //TODO recipe
+        if (configuration.getBoolean("enable", "Furnace_Recipe", true, "Allows the oil ore block to oil clump item recipe to work as a furnace recipe."))
+        {
+            int outputStackSize = configuration.getInt("output_stack_size", "Furnace_Recipe", 1, 1, 64, "Number of oil clumps to output per block in a furnace.");
+            GameRegistry.addSmelting(blockOre, new ItemStack(itemOil, outputStackSize, 0), 0.1f);
+        }
 
         if (configuration.getBoolean("furn_fuel", "Furnace", true, "Allows oil clump to be used in a furnace as fuel."))
         {
