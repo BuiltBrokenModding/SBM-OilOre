@@ -1,7 +1,6 @@
 package com.builtbroken.oilore;
 
 import com.builtbroken.oilore.gen.OreGeneratorOilOre;
-import cpw.mods.fml.common.IFuelHandler;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
@@ -90,19 +89,7 @@ public class OilOreMod
 
         if (configuration.getBoolean("furn_fuel", "Furnace", true, "Allows oil clump to be used in a furnace as fuel."))
         {
-            int fuelBurnTime = configuration.getInt("burn_time", "Furnace", 10000, 0, 1000000, "How long in ticks (20 ticks a second) should oil burn in a furnace");
-            GameRegistry.registerFuelHandler(new IFuelHandler()
-            {
-                @Override
-                public int getBurnTime(ItemStack fuel)
-                {
-                    if (fuel != null && fuel.getItem() == itemOil)
-                    {
-                        return fuelBurnTime;
-                    }
-                    return 0;
-                }
-            });
+            GameRegistry.registerFuelHandler(new FurnaceFuelHandler(configuration));
         }
         configuration.save();
     }
