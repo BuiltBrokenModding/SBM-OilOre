@@ -1,8 +1,10 @@
 package com.builtbroken.oilore;
 
 import com.builtbroken.oilore.gen.OreGeneratorOilOre;
+import com.builtbroken.oilore.recipe.FluidContainerRecipe;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
+import cpw.mods.fml.common.event.FMLInterModComms;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.registry.GameRegistry;
@@ -11,10 +13,14 @@ import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.common.config.Configuration;
+import net.minecraftforge.fluids.IFluidContainerItem;
+import net.minecraftforge.oredict.RecipeSorter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.File;
+
+import static net.minecraftforge.oredict.RecipeSorter.Category.SHAPELESS;
 
 /**
  * Main mod class
@@ -57,6 +63,9 @@ public class OilOreMod
         GameRegistry.registerItem(itemOil, "oilItem");
 
         //TODO add fuel bucket
+        //Handle to request the loading of fluids from the fluid module in VE
+        FMLInterModComms.sendMessage("vefluids", "requestFluid", "fuel");
+        FMLInterModComms.sendMessage("vefluids", "requestFluid", "oil");
     }
 
     @Mod.EventHandler
@@ -91,6 +100,17 @@ public class OilOreMod
         {
             GameRegistry.registerFuelHandler(new FurnaceFuelHandler(configuration));
         }
+
+        //Register recipe to sorter
+        RecipeSorter.register(DOMAIN + ":fluidBucketRecipe", FluidContainerRecipe.class, SHAPELESS, "after:minecraft:shapeless");
+
+        //TODO add way to add more buckets to recipe
+        Item item = (Item) Item.itemRegistry.getObject("vefluids:veBucket");
+        if (item instanceof IFluidContainerItem)
+        {
+            GameRegistry.addRecipe(new FluidContainerRecipe(item, item));
+        }
+
         configuration.save();
     }
 }
