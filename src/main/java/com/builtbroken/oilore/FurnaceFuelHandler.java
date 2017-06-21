@@ -1,8 +1,8 @@
 package com.builtbroken.oilore;
 
-import cpw.mods.fml.common.IFuelHandler;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.common.config.Configuration;
+import net.minecraftforge.fml.common.IFuelHandler;
 
 /**
  * @see <a href="https://github.com/BuiltBrokenModding/VoltzEngine/blob/development/license.md">License</a> for what you can and can't do with the code.

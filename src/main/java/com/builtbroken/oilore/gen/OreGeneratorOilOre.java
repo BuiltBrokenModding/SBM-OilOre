@@ -1,13 +1,14 @@
 package com.builtbroken.oilore.gen;
 
 import com.builtbroken.oilore.OilOreMod;
-import cpw.mods.fml.common.IWorldGenerator;
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.IChunkProvider;
 import net.minecraft.world.gen.ChunkProviderGenerate;
-import net.minecraftforge.common.util.ForgeDirection;
+import net.minecraftforge.fml.common.IWorldGenerator;
 
 import java.util.*;
 
@@ -41,7 +42,9 @@ public class OreGeneratorOilOre implements IWorldGenerator
         {
             int x = varX + random.nextInt(16);
             int z = varZ + random.nextInt(16);
+
             int y = random.nextInt(Math.max(maxGenerateLevel - minGenerateLevel, 0)) + minGenerateLevel;
+
             int placed = this.generateBranch(world, random, varX, varZ, x, y, z);
             if (placed <= 0)
             {
@@ -65,15 +68,15 @@ public class OreGeneratorOilOre implements IWorldGenerator
     {
         int blocksPlaced = 0;
         //Positions already pathed
-        List<Pos> pathed = new ArrayList();
+        List<BlockPos> pathed = new ArrayList();
         //Positions to path next
-        Queue<Pos> toPath = new LinkedList();
+        Queue<BlockPos> toPath = new LinkedList();
 
         //First location to path
-        toPath.add(new Pos(varX, varY, varZ));
+        toPath.add(new BlockPos(varX, varY, varZ));
 
-        List<ForgeDirection> directions = new ArrayList();
-        for (ForgeDirection dir : ForgeDirection.VALID_DIRECTIONS)
+        List<EnumFacing> directions = new ArrayList();
+        for (EnumFacing dir : EnumFacing.values())
         {
             directions.add(dir);
         }
@@ -81,14 +84,14 @@ public class OreGeneratorOilOre implements IWorldGenerator
         //Breadth first search
         while (!toPath.isEmpty() && blocksPlaced < amountPerBranch)
         {
-            Pos next = toPath.poll();
+            BlockPos next = toPath.poll();
             pathed.add(next);
 
             //Place block
-            Block block = world.getBlock(next.x, next.y, next.z);
+            Block block = world.getBlockState(next).getBlock();
             if (block == Blocks.stone)
             {
-                if (world.setBlock(next.x, next.y, next.z, OilOreMod.blockOre, 0, 2))
+                if (world.setBlockState(next, OilOreMod.blockOre.getDefaultState()))
                 {
                     blocksPlaced += 1;
                 }
@@ -96,18 +99,18 @@ public class OreGeneratorOilOre implements IWorldGenerator
 
             //Find new locations to place blocks
             Collections.shuffle(directions);
-            for (ForgeDirection direction : directions)
+            for (EnumFacing direction : directions)
             {
                 //TODO randomize next path
-                Pos pos = next.add(direction);
+                BlockPos pos = next.add(direction.getFrontOffsetX(), direction.getFrontOffsetY(), direction.getFrontOffsetZ());
                 if (!pathed.contains(pos) && world.rand.nextBoolean())
                 {
-                    boolean insideX = pos.x >= chunkCornerX && pos.x < (chunkCornerX + 16);
-                    boolean insideZ = pos.z >= chunkCornerZ && pos.z < (chunkCornerZ + 16);
-                    boolean insideY = pos.y >= minGenerateLevel && pos.y <= maxGenerateLevel;
+                    boolean insideX = pos.getX() >= chunkCornerX && pos.getX() < (chunkCornerX + 16);
+                    boolean insideZ = pos.getZ() >= chunkCornerZ && pos.getZ() < (chunkCornerZ + 16);
+                    boolean insideY = pos.getY() >= minGenerateLevel && pos.getY() <= maxGenerateLevel;
                     if (insideX && insideZ && insideY)
                     {
-                        block = world.getBlock(pos.x, pos.y, pos.z);
+                        block = world.getBlockState(pos).getBlock();
                         if (block == Blocks.stone)
                         {
                             toPath.add(pos);
@@ -127,22 +130,5 @@ public class OreGeneratorOilOre implements IWorldGenerator
     public boolean isOreGeneratedInWorld(World world, IChunkProvider chunkGenerator)
     {
         return chunkGenerator instanceof ChunkProviderGenerate;
-    }
-
-    public static class Pos
-    {
-        public final int x, y, z;
-
-        public Pos(int x, int y, int z)
-        {
-            this.x = x;
-            this.y = y;
-            this.z = z;
-        }
-
-        public Pos add(ForgeDirection d)
-        {
-            return new Pos(x + d.offsetX, y + d.offsetY, z + d.offsetZ);
-        }
     }
 }

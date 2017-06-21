@@ -3,6 +3,7 @@ package com.builtbroken.oilore;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.util.BlockPos;
 import net.minecraft.util.MathHelper;
 import net.minecraft.world.IBlockAccess;
 
@@ -23,12 +24,11 @@ public class BlockOilOre extends Block
         this.setResistance(10.0F);
         this.setStepSound(soundTypePiston);
         this.setCreativeTab(CreativeTabs.tabBlock);
-        this.setBlockTextureName(OilOreMod.DOMAIN + ":oil_ore");
-        this.setBlockName(OilOreMod.DOMAIN + ":oilore");
+        this.setUnlocalizedName(OilOreMod.DOMAIN + ":oilore");
     }
 
     @Override
-    public int getExpDrop(IBlockAccess world, int p_149690_5_, int p_149690_7_)
+    public int getExpDrop(IBlockAccess world, BlockPos pos, int fortune)
     {
         return MathHelper.getRandomIntegerInRange(rand, 0, 2);
     }

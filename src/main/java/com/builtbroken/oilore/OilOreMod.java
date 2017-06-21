@@ -1,19 +1,22 @@
 package com.builtbroken.oilore;
 
+import com.builtbroken.oilore.debug.ItemInstantHole;
 import com.builtbroken.oilore.gen.OreGeneratorOilOre;
 import com.builtbroken.oilore.recipe.FluidContainerRecipe;
-import cpw.mods.fml.common.Mod;
-import cpw.mods.fml.common.event.FMLInitializationEvent;
-import cpw.mods.fml.common.event.FMLInterModComms;
-import cpw.mods.fml.common.event.FMLPostInitializationEvent;
-import cpw.mods.fml.common.event.FMLPreInitializationEvent;
-import cpw.mods.fml.common.registry.GameRegistry;
 import net.minecraft.block.Block;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.fluids.IFluidContainerItem;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.SidedProxy;
+import net.minecraftforge.fml.common.event.FMLInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLInterModComms;
+import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.oredict.RecipeSorter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -28,9 +31,11 @@ import static net.minecraftforge.oredict.RecipeSorter.Category.SHAPELESS;
  * @see <a href="https://github.com/BuiltBrokenModding/VoltzEngine/blob/development/license.md">License</a> for what you can and can't do with the code.
  * Created by Dark(DarkGuardsman, Robert) on 5/11/2017.
  */
-@cpw.mods.fml.common.Mod(modid = OilOreMod.DOMAIN, name = "Oil Ore", version = OilOreMod.VERSION)
+@Mod(modid = OilOreMod.DOMAIN, name = "Oil Ore", version = OilOreMod.VERSION)
 public class OilOreMod
 {
+    public static final boolean runningAsDev = System.getProperty("development") != null && System.getProperty("development").equalsIgnoreCase("true");
+
     public static final String MAJOR_VERSION = "@MAJOR@";
     public static final String MINOR_VERSION = "@MINOR@";
     public static final String REVISION_VERSION = "@REVIS@";
@@ -39,6 +44,9 @@ public class OilOreMod
 
     public static final String DOMAIN = "sbmoilore";
 
+    @SidedProxy(modId = OilOreMod.DOMAIN, serverSide = "com.builtbroken.oilore.CommonProxy", clientSide = "com.builtbroken.oilore.client.ClientProxy")
+    public static CommonProxy proxy;
+
     /** Information output thing */
     public static final Logger logger = LogManager.getLogger("SBM-OilOre");
 
@@ -46,6 +54,7 @@ public class OilOreMod
 
     public static Block blockOre;
     public static Item itemOil;
+    public static Item instantHole;
 
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event)
@@ -57,15 +66,22 @@ public class OilOreMod
         GameRegistry.registerBlock(blockOre, "oilore");
 
         int harvestLevel = configuration.getInt("harvest_level", Configuration.CATEGORY_GENERAL, 1, 0, 4, "Tool level to use for breaking the ore.");
-        blockOre.setHarvestLevel("pickaxe", harvestLevel, 0);
+        blockOre.setHarvestLevel("pickaxe", harvestLevel, blockOre.getDefaultState());
 
-        itemOil = new Item().setUnlocalizedName(DOMAIN + ":oilore").setTextureName(DOMAIN + ":oil_ore").setCreativeTab(CreativeTabs.tabMaterials);
+        itemOil = new Item().setUnlocalizedName(DOMAIN + ":oilore").setCreativeTab(CreativeTabs.tabMaterials);
         GameRegistry.registerItem(itemOil, "oilItem");
+
+        if(runningAsDev)
+        {
+            GameRegistry.registerItem(instantHole = new ItemInstantHole());
+        }
 
         //TODO add fuel bucket
         //Handle to request the loading of fluids from the fluid module in VE
         FMLInterModComms.sendMessage("vefluids", "requestFluid", "fuel");
         FMLInterModComms.sendMessage("vefluids", "requestFluid", "oil");
+
+        proxy.preInit();
     }
 
     @Mod.EventHandler
@@ -105,7 +121,7 @@ public class OilOreMod
         RecipeSorter.register(DOMAIN + ":fluidBucketRecipe", FluidContainerRecipe.class, SHAPELESS, "after:minecraft:shapeless");
 
         //TODO add way to add more buckets to recipe
-        Item item = (Item) Item.itemRegistry.getObject("vefluids:veBucket");
+        Item item = (Item) Item.itemRegistry.getObject(new ResourceLocation("vefluids:veBucket"));
         if (item instanceof IFluidContainerItem)
         {
             GameRegistry.addRecipe(new FluidContainerRecipe(item, item));
