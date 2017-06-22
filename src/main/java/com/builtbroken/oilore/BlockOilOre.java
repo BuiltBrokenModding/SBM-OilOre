@@ -32,6 +32,6 @@ public class BlockOilOre extends Block
     @Override
     public int getExpDrop(IBlockState state, IBlockAccess world, BlockPos pos, int fortune)
     {
-        return MathHelper.getRandomIntegerInRange(rand, 0, 2);
+        return MathHelper.getInt(rand, 0, 2);
     }
 }

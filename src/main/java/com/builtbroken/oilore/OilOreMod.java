@@ -10,7 +10,6 @@ import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.config.Configuration;
-import net.minecraftforge.fluids.IFluidContainerItem;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
@@ -126,7 +125,7 @@ public class OilOreMod
 
         //TODO add way to add more buckets to recipe
         Item item = (Item) Item.REGISTRY.getObject(new ResourceLocation("vefluids:veBucket"));
-        if (item instanceof IFluidContainerItem)
+        if (item != null) //TODO check if container
         {
             GameRegistry.addRecipe(new FluidContainerRecipe(item, item));
         }

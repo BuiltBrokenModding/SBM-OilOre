@@ -5,7 +5,9 @@ import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
-import net.minecraftforge.fluids.*;
+import net.minecraftforge.fluids.Fluid;
+import net.minecraftforge.fluids.FluidRegistry;
+import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.oredict.ShapelessOreRecipe;
@@ -56,26 +58,13 @@ public class FluidContainerRecipe extends ShapelessOreRecipe
 
     protected ItemStack getBucket(ItemStack slot)
     {
-        if(slot != null && slot.getItem() == bucket)
+        if (slot != null && slot.getItem() == bucket)
         {
             ItemStack stack = slot.copy();
-            if (stack.getItem() instanceof IFluidContainerItem)
-            {
-                //Assumes the meta is used for texture
-                IFluidContainerItem containerItem = (IFluidContainerItem) slot.getItem();
-                if (containerItem.drain(slot, Integer.MAX_VALUE, false) == null)
-                {
-                    stack.stackSize = 1;
-                    if (containerItem.fill(stack, new FluidStack(FluidRegistry.getFluid("fuel"), Fluid.BUCKET_VOLUME), true) >= Fluid.BUCKET_VOLUME)
-                    {
-                        return stack;
-                    }
-                }
-            }
-            else if(stack.hasCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, null))
+            if (stack.hasCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, null))
             {
                 IFluidHandler handler = slot.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, null);
-                if(handler != null)
+                if (handler != null)
                 {
                     if (handler.fill(new FluidStack(FluidRegistry.getFluid("fuel"), Fluid.BUCKET_VOLUME), true) >= Fluid.BUCKET_VOLUME)
                     {
