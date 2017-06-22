@@ -3,11 +3,12 @@ package com.builtbroken.oilore.gen;
 import com.builtbroken.oilore.OilOreMod;
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
-import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraft.world.chunk.IChunkGenerator;
 import net.minecraft.world.chunk.IChunkProvider;
-import net.minecraft.world.gen.ChunkProviderGenerate;
+import net.minecraft.world.gen.ChunkProviderOverworld;
 import net.minecraftforge.fml.common.IWorldGenerator;
 
 import java.util.*;
@@ -21,16 +22,16 @@ public class OreGeneratorOilOre implements IWorldGenerator
     public int amountPerBranch = 10;
 
     @Override
-    public final void generate(Random rand, int chunkX, int chunkZ, World world, IChunkProvider chunkGenerator, IChunkProvider chunkProvider)
+    public void generate(Random random, int chunkX, int chunkZ, World world, IChunkGenerator chunkGenerator, IChunkProvider chunkProvider)
     {
         chunkX = chunkX << 4;
         chunkZ = chunkZ << 4;
 
         // Checks to make sure this is the normal world
 
-        if (isOreGeneratedInWorld(world, chunkGenerator))
+        if (isOreGeneratedInWorld(world, chunkGenerator, chunkProvider))
         {
-            generate(world, rand, chunkX, chunkZ);
+            generate(world, world.rand, chunkX, chunkZ);
         }
     }
 
@@ -89,7 +90,7 @@ public class OreGeneratorOilOre implements IWorldGenerator
 
             //Place block
             Block block = world.getBlockState(next).getBlock();
-            if (block == Blocks.stone)
+            if (block == Blocks.STONE)
             {
                 if (world.setBlockState(next, OilOreMod.blockOre.getDefaultState()))
                 {
@@ -111,7 +112,7 @@ public class OreGeneratorOilOre implements IWorldGenerator
                     if (insideX && insideZ && insideY)
                     {
                         block = world.getBlockState(pos).getBlock();
-                        if (block == Blocks.stone)
+                        if (block == Blocks.STONE)
                         {
                             toPath.add(pos);
                         }
@@ -127,8 +128,8 @@ public class OreGeneratorOilOre implements IWorldGenerator
         return blocksPlaced;
     }
 
-    public boolean isOreGeneratedInWorld(World world, IChunkProvider chunkGenerator)
+    public boolean isOreGeneratedInWorld(World world, IChunkGenerator generator, IChunkProvider provider)
     {
-        return chunkGenerator instanceof ChunkProviderGenerate;
+        return generator instanceof ChunkProviderOverworld;
     }
 }

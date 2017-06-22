@@ -7,8 +7,10 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 
@@ -20,13 +22,13 @@ public class ItemInstantHole extends Item
 {
     public ItemInstantHole()
     {
-        setCreativeTab(CreativeTabs.tabTools);
+        setCreativeTab(CreativeTabs.TOOLS);
         setRegistryName("instantHole");
         setUnlocalizedName(OilOreMod.DOMAIN + ":instantHole");
     }
 
     @Override
-    public boolean onItemUse(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ)
+    public EnumActionResult onItemUse(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
     {
         if (!world.isRemote)
         {
@@ -41,22 +43,22 @@ public class ItemInstantHole extends Item
                     {
                         BlockPos blockPos = new BlockPos(x + chunkX, y, z + chunkZ);
                         Block block = world.getBlockState(blockPos).getBlock();
-                        if (block == Blocks.stone || block == Blocks.sand || block == Blocks.sandstone || block == Blocks.dirt || block == Blocks.grass || block == Blocks.gravel)
+                        if (block == Blocks.STONE || block == Blocks.SAND || block == Blocks.SANDSTONE || block == Blocks.DIRT || block == Blocks.GRASS || block == Blocks.GRAVEL)
                         {
                             world.setBlockToAir(blockPos);
                         }
-                        else if (block == Blocks.water || block == Blocks.flowing_water)
+                        else if (block == Blocks.WATER || block == Blocks.FLOWING_WATER)
                         {
-                            world.setBlockState(blockPos, Blocks.stained_glass.getStateFromMeta(4), 2);
+                            world.setBlockState(blockPos, Blocks.STAINED_GLASS.getStateFromMeta(4), 2);
                         }
-                        else if (block == Blocks.lava || block == Blocks.flowing_lava)
+                        else if (block == Blocks.LAVA || block == Blocks.FLOWING_LAVA)
                         {
-                            world.setBlockState(blockPos, Blocks.stained_glass.getStateFromMeta(1), 2);
+                            world.setBlockState(blockPos, Blocks.STAINED_GLASS.getStateFromMeta(1), 2);
                         }
                     }
                 }
             }
         }
-        return true;
+        return EnumActionResult.SUCCESS;
     }
 }

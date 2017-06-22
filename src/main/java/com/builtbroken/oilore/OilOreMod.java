@@ -6,6 +6,7 @@ import com.builtbroken.oilore.recipe.FluidContainerRecipe;
 import net.minecraft.block.Block;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.config.Configuration;
@@ -63,17 +64,20 @@ public class OilOreMod
         configuration.load();
 
         blockOre = new BlockOilOre();
-        GameRegistry.registerBlock(blockOre, "oilore");
+        blockOre.setRegistryName("oilore");
+        GameRegistry.register(blockOre);
+        GameRegistry.register(new ItemBlock(blockOre).setRegistryName(blockOre.getRegistryName()));
 
         int harvestLevel = configuration.getInt("harvest_level", Configuration.CATEGORY_GENERAL, 1, 0, 4, "Tool level to use for breaking the ore.");
         blockOre.setHarvestLevel("pickaxe", harvestLevel, blockOre.getDefaultState());
 
-        itemOil = new Item().setUnlocalizedName(DOMAIN + ":oilore").setCreativeTab(CreativeTabs.tabMaterials);
-        GameRegistry.registerItem(itemOil, "oilItem");
+        itemOil = new Item().setUnlocalizedName(DOMAIN + ":oilore").setCreativeTab(CreativeTabs.MATERIALS);
+        itemOil.setRegistryName("oilItem");
+        GameRegistry.register(itemOil);
 
-        if(runningAsDev)
+        if (runningAsDev)
         {
-            GameRegistry.registerItem(instantHole = new ItemInstantHole());
+            GameRegistry.register(instantHole = new ItemInstantHole());
         }
 
         //TODO add fuel bucket
@@ -121,7 +125,7 @@ public class OilOreMod
         RecipeSorter.register(DOMAIN + ":fluidBucketRecipe", FluidContainerRecipe.class, SHAPELESS, "after:minecraft:shapeless");
 
         //TODO add way to add more buckets to recipe
-        Item item = (Item) Item.itemRegistry.getObject(new ResourceLocation("vefluids:veBucket"));
+        Item item = (Item) Item.REGISTRY.getObject(new ResourceLocation("vefluids:veBucket"));
         if (item instanceof IFluidContainerItem)
         {
             GameRegistry.addRecipe(new FluidContainerRecipe(item, item));
