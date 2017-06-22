@@ -5,10 +5,9 @@ import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
-import net.minecraftforge.fluids.FluidContainerRegistry;
-import net.minecraftforge.fluids.FluidRegistry;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.IFluidContainerItem;
+import net.minecraftforge.fluids.*;
+import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
+import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.oredict.ShapelessOreRecipe;
 
 /**
@@ -57,17 +56,31 @@ public class FluidContainerRecipe extends ShapelessOreRecipe
 
     protected ItemStack getBucket(ItemStack slot)
     {
-        if (slot != null && slot.getItem() == bucket && slot.getItem() instanceof IFluidContainerItem)
+        if(slot != null && slot.getItem() == bucket)
         {
-            //Assumes the meta is used for texture
-            IFluidContainerItem containerItem = (IFluidContainerItem) slot.getItem();
-            if (containerItem.drain(slot, Integer.MAX_VALUE, false) == null)
+            ItemStack stack = slot.copy();
+            if (stack.getItem() instanceof IFluidContainerItem)
             {
-                ItemStack stack = slot.copy();
-                stack.stackSize = 1;
-                if (containerItem.fill(stack, new FluidStack(FluidRegistry.getFluid("fuel"), FluidContainerRegistry.BUCKET_VOLUME), true) >= FluidContainerRegistry.BUCKET_VOLUME)
+                //Assumes the meta is used for texture
+                IFluidContainerItem containerItem = (IFluidContainerItem) slot.getItem();
+                if (containerItem.drain(slot, Integer.MAX_VALUE, false) == null)
                 {
-                    return stack;
+                    stack.stackSize = 1;
+                    if (containerItem.fill(stack, new FluidStack(FluidRegistry.getFluid("fuel"), Fluid.BUCKET_VOLUME), true) >= Fluid.BUCKET_VOLUME)
+                    {
+                        return stack;
+                    }
+                }
+            }
+            else if(stack.hasCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, null))
+            {
+                IFluidHandler handler = slot.getCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, null);
+                if(handler != null)
+                {
+                    if (handler.fill(new FluidStack(FluidRegistry.getFluid("fuel"), Fluid.BUCKET_VOLUME), true) >= Fluid.BUCKET_VOLUME)
+                    {
+                        return stack;
+                    }
                 }
             }
         }
