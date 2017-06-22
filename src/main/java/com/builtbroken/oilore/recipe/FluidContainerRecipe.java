@@ -10,24 +10,23 @@ import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandler;
-import net.minecraftforge.oredict.ShapelessOreRecipe;
 
 /**
  * @see <a href="https://github.com/BuiltBrokenModding/VoltzEngine/blob/development/license.md">License</a> for what you can and can't do with the code.
  * Created by Dark(DarkGuardsman, Robert) on 5/24/2017.
  */
-public class FluidContainerRecipe extends ShapelessOreRecipe
+public class FluidContainerRecipe //extends ShapelessOreRecipe
 {
     public final Item bucket;
 
     public FluidContainerRecipe(Item result, Item bucket)
     {
-        super(result, bucket, new ItemStack(OilOreMod.itemOil));
+        //super(result, bucket, new ItemStack(OilOreMod.itemOil));
         this.bucket = bucket;
     }
 
     @SuppressWarnings("unchecked")
-    @Override
+    //@Override
     public boolean matches(InventoryCrafting var1, World world)
     {
         boolean foundBucket = false;
@@ -76,7 +75,7 @@ public class FluidContainerRecipe extends ShapelessOreRecipe
         return null;
     }
 
-    @Override
+    //@Override
     public ItemStack getCraftingResult(InventoryCrafting var1)
     {
         ItemStack bucket = null;

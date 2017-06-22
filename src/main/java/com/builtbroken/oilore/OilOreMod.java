@@ -127,7 +127,7 @@ public class OilOreMod
         Item item = (Item) Item.REGISTRY.getObject(new ResourceLocation("vefluids:veBucket"));
         if (item != null) //TODO check if container
         {
-            GameRegistry.addRecipe(new FluidContainerRecipe(item, item));
+            //GameRegistry.addRecipe(new FluidContainerRecipe(item, item));
         }
 
         configuration.save();

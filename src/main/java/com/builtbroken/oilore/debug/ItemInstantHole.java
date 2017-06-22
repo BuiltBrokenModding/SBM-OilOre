@@ -32,8 +32,8 @@ public class ItemInstantHole extends Item
         if (!world.isRemote)
         {
             Chunk chunk = world.getChunkFromBlockCoords(pos);
-            int chunkX = chunk.xPosition << 4;
-            int chunkZ = chunk.zPosition << 4;
+            int chunkX = chunk.x << 4;
+            int chunkZ = chunk.z << 4;
             for (int y = 1; y < 256; y++)
             {
                 for (int x = 0; x < 16; x++)
