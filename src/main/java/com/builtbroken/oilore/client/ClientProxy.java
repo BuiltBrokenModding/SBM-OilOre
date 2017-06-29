@@ -16,13 +16,17 @@ public class ClientProxy extends CommonProxy
     public void preInit()
     {
         super.preInit();
-        ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(OilOreMod.blockOre), 0, new ModelResourceLocation(OilOreMod.blockOre.getRegistryName(), "inventory"));
+    }
 
+    @Override
+    public void doLoadModels()
+    {
         ModelLoader.setCustomModelResourceLocation(OilOreMod.itemOil, 0, new ModelResourceLocation(OilOreMod.itemOil.getRegistryName(), "inventory"));
 
-        if(OilOreMod.instantHole != null)
+        if (OilOreMod.instantHole != null)
         {
             ModelLoader.setCustomModelResourceLocation(OilOreMod.instantHole, 0, new ModelResourceLocation(OilOreMod.instantHole.getRegistryName(), "inventory"));
         }
+        ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(OilOreMod.blockOre), 0, new ModelResourceLocation(OilOreMod.blockOre.getRegistryName(), "inventory"));
     }
 }

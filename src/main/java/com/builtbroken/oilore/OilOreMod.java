@@ -9,13 +9,17 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.client.event.ModelRegistryEvent;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Configuration;
+import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLInterModComms;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.oredict.RecipeSorter;
 import org.apache.logging.log4j.LogManager;
@@ -32,6 +36,7 @@ import static net.minecraftforge.oredict.RecipeSorter.Category.SHAPELESS;
  * Created by Dark(DarkGuardsman, Robert) on 5/11/2017.
  */
 @Mod(modid = OilOreMod.DOMAIN, name = "Oil Ore", version = OilOreMod.VERSION)
+@Mod.EventBusSubscriber(modid = OilOreMod.DOMAIN)
 public class OilOreMod
 {
     public static final boolean runningAsDev = System.getProperty("development") != null && System.getProperty("development").equalsIgnoreCase("true");
@@ -56,28 +61,53 @@ public class OilOreMod
     public static Item itemOil;
     public static Item instantHole;
 
-    @Mod.EventHandler
-    public void preInit(FMLPreInitializationEvent event)
+    @SubscribeEvent
+    public static void registerAllModels(ModelRegistryEvent event)
     {
-        configuration = new Configuration(new File(event.getModConfigurationDirectory(), "bbm/Grappling_Hook.cfg"));
-        configuration.load();
+        logger.info("Registering Models");
+        proxy.doLoadModels();
+    }
 
-        blockOre = new BlockOilOre();
-        blockOre.setRegistryName("oilore");
-        GameRegistry.register(blockOre);
-        GameRegistry.register(new ItemBlock(blockOre).setRegistryName(blockOre.getRegistryName()));
+    @SubscribeEvent
+    public void registerItems(RegistryEvent.Register<Item> event)
+    {
+        logger.info("Registering Items");
+        event.getRegistry().register(
+                new ItemBlock(blockOre)
+                        .setRegistryName(blockOre.getRegistryName()));
 
-        int harvestLevel = configuration.getInt("harvest_level", Configuration.CATEGORY_GENERAL, 1, 0, 4, "Tool level to use for breaking the ore.");
-        blockOre.setHarvestLevel("pickaxe", harvestLevel, blockOre.getDefaultState());
-
-        itemOil = new Item().setUnlocalizedName(DOMAIN + ":oilore").setCreativeTab(CreativeTabs.MATERIALS);
-        itemOil.setRegistryName("oilItem");
-        GameRegistry.register(itemOil);
+        event.getRegistry().register(
+                itemOil = new Item()
+                        .setRegistryName("oilItem")
+                        .setUnlocalizedName(DOMAIN + ":oilore")
+                        .setCreativeTab(CreativeTabs.MATERIALS));
 
         if (runningAsDev)
         {
-            GameRegistry.register(instantHole = new ItemInstantHole());
+            event.getRegistry().register(instantHole = new ItemInstantHole());
         }
+    }
+
+    @SubscribeEvent
+    public void registerBlocks(RegistryEvent.Register<Block> event)
+    {
+        logger.info("Registering Blocks");
+        event.getRegistry().register(
+                blockOre = new BlockOilOre()
+                        .setRegistryName("oilore"));
+
+        int harvestLevel = configuration.getInt("harvest_level", Configuration.CATEGORY_GENERAL, 1, 0, 4, "Tool level to use for breaking the ore.");
+        blockOre.setHarvestLevel("pickaxe", harvestLevel, blockOre.getDefaultState());
+    }
+
+    @Mod.EventHandler
+    public void preInit(FMLPreInitializationEvent event)
+    {
+        logger.info("PreInit");
+        configuration = new Configuration(new File(event.getModConfigurationDirectory(), "bbm/Grappling_Hook.cfg"));
+        configuration.load();
+
+        MinecraftForge.EVENT_BUS.register(this);
 
         //TODO add fuel bucket
         //Handle to request the loading of fluids from the fluid module in VE
@@ -90,6 +120,8 @@ public class OilOreMod
     @Mod.EventHandler
     public void init(FMLInitializationEvent event)
     {
+        logger.info("Init");
+
         if (configuration.getBoolean("generate_ore", Configuration.CATEGORY_GENERAL, true, "Set to false to disable generate of this ore in the world."))
         {
             OreGeneratorOilOre generatorOilOre = new OreGeneratorOilOre();
@@ -106,6 +138,7 @@ public class OilOreMod
     @Mod.EventHandler
     public void postInit(FMLPostInitializationEvent event)
     {
+        logger.info("PostInit");
         //TODO recipe for fuel can
         //TODO recipe for fuel bucket
 

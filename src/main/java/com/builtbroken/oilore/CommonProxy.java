@@ -7,4 +7,9 @@ package com.builtbroken.oilore;
 public class CommonProxy
 {
     public void preInit(){}
+
+    public void doLoadModels()
+    {
+
+    }
 }
