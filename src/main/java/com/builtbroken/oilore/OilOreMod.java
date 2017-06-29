@@ -10,7 +10,6 @@ import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.event.ModelRegistryEvent;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -55,7 +54,7 @@ public class OilOreMod
     /** Information output thing */
     public static final Logger logger = LogManager.getLogger("SBM-OilOre");
 
-    private Configuration configuration;
+    private static Configuration configuration;
 
     public static Block blockOre;
     public static Item itemOil;
@@ -69,7 +68,7 @@ public class OilOreMod
     }
 
     @SubscribeEvent
-    public void registerItems(RegistryEvent.Register<Item> event)
+    public static void registerItems(RegistryEvent.Register<Item> event)
     {
         logger.info("Registering Items");
         event.getRegistry().register(
@@ -89,7 +88,7 @@ public class OilOreMod
     }
 
     @SubscribeEvent
-    public void registerBlocks(RegistryEvent.Register<Block> event)
+    public static void registerBlocks(RegistryEvent.Register<Block> event)
     {
         logger.info("Registering Blocks");
         event.getRegistry().register(
@@ -106,8 +105,6 @@ public class OilOreMod
         logger.info("PreInit");
         configuration = new Configuration(new File(event.getModConfigurationDirectory(), "bbm/Grappling_Hook.cfg"));
         configuration.load();
-
-        MinecraftForge.EVENT_BUS.register(this);
 
         //TODO add fuel bucket
         //Handle to request the loading of fluids from the fluid module in VE
