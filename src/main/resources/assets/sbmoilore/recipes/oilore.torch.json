@@ -1,0 +1,22 @@
+{
+  "result": {
+    "item": "minecraft:torch",
+    "count":12
+  },
+  "group": "minecraft:torch",
+  "pattern": [
+    "o",
+    "s"
+  ],
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "o": {
+      "item": "sbmoilore:oilitem",
+      "data": 0
+    },
+    "s": {
+      "type": "forge:ore_dict",
+      "ore": "stickWood"
+    }
+  }
+}
