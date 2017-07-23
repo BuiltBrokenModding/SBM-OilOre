@@ -2,7 +2,6 @@ package com.builtbroken.oilore;
 
 import com.builtbroken.oilore.debug.ItemInstantHole;
 import com.builtbroken.oilore.gen.OreGeneratorOilOre;
-import com.builtbroken.oilore.recipe.FluidContainerRecipe;
 import net.minecraft.block.Block;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
@@ -15,18 +14,13 @@ import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLInterModComms;
-import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.registry.GameRegistry;
-import net.minecraftforge.oredict.RecipeSorter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.File;
-
-import static net.minecraftforge.oredict.RecipeSorter.Category.SHAPELESS;
 
 /**
  * Main mod class
@@ -103,13 +97,8 @@ public class OilOreMod
     public void preInit(FMLPreInitializationEvent event)
     {
         logger.info("PreInit");
-        configuration = new Configuration(new File(event.getModConfigurationDirectory(), "bbm/Grappling_Hook.cfg"));
+        configuration = new Configuration(new File(event.getModConfigurationDirectory(), "bbm/OilOreMod.cfg"));
         configuration.load();
-
-        //TODO add fuel bucket
-        //Handle to request the loading of fluids from the fluid module in VE
-        FMLInterModComms.sendMessage("vefluids", "requestFluid", "fuel");
-        FMLInterModComms.sendMessage("vefluids", "requestFluid", "oil");
 
         proxy.preInit();
     }
@@ -117,8 +106,6 @@ public class OilOreMod
     @Mod.EventHandler
     public void init(FMLInitializationEvent event)
     {
-        logger.info("Init");
-
         if (configuration.getBoolean("generate_ore", Configuration.CATEGORY_GENERAL, true, "Set to false to disable generate of this ore in the world."))
         {
             OreGeneratorOilOre generatorOilOre = new OreGeneratorOilOre();
@@ -130,14 +117,6 @@ public class OilOreMod
 
             GameRegistry.registerWorldGenerator(generatorOilOre, 1);
         }
-    }
-
-    @Mod.EventHandler
-    public void postInit(FMLPostInitializationEvent event)
-    {
-        logger.info("PostInit");
-        //TODO recipe for fuel can
-        //TODO recipe for fuel bucket
 
         if (configuration.getBoolean("enable", "Furnace_Recipe", true, "Allows the oil ore block to oil clump item recipe to work as a furnace recipe."))
         {
@@ -151,10 +130,10 @@ public class OilOreMod
         }
 
         //Register recipe to sorter
-        RecipeSorter.register(DOMAIN + ":fluidBucketRecipe", FluidContainerRecipe.class, SHAPELESS, "after:minecraft:shapeless");
+        //RecipeSorter.register(DOMAIN + ":fluidBucketRecipe", FluidContainerRecipe.class, SHAPELESS, "after:minecraft:shapeless");
 
         //TODO add way to add more buckets to recipe
-        Item item = (Item) Item.REGISTRY.getObject(new ResourceLocation("vefluids:veBucket"));
+        Item item = Item.REGISTRY.getObject(new ResourceLocation("vefluids:veBucket"));
         if (item != null) //TODO check if container
         {
             //GameRegistry.addRecipe(new FluidContainerRecipe(item, item));
