@@ -5,7 +5,6 @@ import com.builtbroken.oilore.recipe.FluidContainerRecipe;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLInterModComms;
-import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.registry.GameRegistry;
 import net.minecraft.block.Block;
@@ -50,7 +49,7 @@ public class OilOreMod
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event)
     {
-        configuration = new Configuration(new File(event.getModConfigurationDirectory(), "bbm/Grappling_Hook.cfg"));
+        configuration = new Configuration(new File(event.getModConfigurationDirectory(), "bbm/OilOreMod.cfg"));
         configuration.load();
 
         blockOre = new BlockOilOre();
@@ -82,11 +81,7 @@ public class OilOreMod
 
             GameRegistry.registerWorldGenerator(generatorOilOre, 1);
         }
-    }
 
-    @Mod.EventHandler
-    public void postInit(FMLPostInitializationEvent event)
-    {
         //TODO recipe for fuel can
         //TODO recipe for fuel bucket
 
