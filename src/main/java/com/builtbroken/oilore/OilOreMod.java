@@ -2,15 +2,19 @@ package com.builtbroken.oilore;
 
 import com.builtbroken.oilore.debug.ItemInstantHole;
 import com.builtbroken.oilore.gen.OreGeneratorOilOre;
+import com.builtbroken.oilore.recipe.FluidContainerRecipe;
 import net.minecraft.block.Block;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.event.RegistryEvent;
+import net.minecraftforge.fluids.Fluid;
+import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
@@ -129,16 +133,20 @@ public class OilOreMod
             GameRegistry.registerFuelHandler(new FurnaceFuelHandler(configuration));
         }
 
-        //Register recipe to sorter
-        //RecipeSorter.register(DOMAIN + ":fluidBucketRecipe", FluidContainerRecipe.class, SHAPELESS, "after:minecraft:shapeless");
-
-        //TODO add way to add more buckets to recipe
-        Item item = Item.REGISTRY.getObject(new ResourceLocation("vefluids:veBucket"));
-        if (item != null) //TODO check if container
-        {
-            //GameRegistry.addRecipe(new FluidContainerRecipe(item, item));
-        }
-
         configuration.save();
+    }
+
+    @SubscribeEvent
+    public static void registerRecipe(RegistryEvent.Register<IRecipe> event)
+    {
+        Fluid fluid = FluidRegistry.getFluid("oil");
+        if(fluid != null)
+        {
+            Item item = Item.REGISTRY.getObject(new ResourceLocation("vefluids:veBucket"));
+            if (item != null)
+            {
+                event.getRegistry().register(new FluidContainerRecipe(item, item, fluid).setRegistryName(new ResourceLocation(DOMAIN, "fluidBucket_" + item)));
+            }
+        }
     }
 }
