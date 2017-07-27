@@ -13,68 +13,99 @@ import net.minecraftforge.fml.common.IWorldGenerator;
 
 import java.util.*;
 
-
+/**
+ * Ore generator for oil ore
+ */
 public class OreGeneratorOilOre implements IWorldGenerator
 {
+    //Generation settings
     public int minGenerateLevel = 40;
     public int maxGenerateLevel = 120;
     public int amountPerChunk = 80;
     public int amountPerBranch = 10;
 
+    //Used for randomized direction in pathfinder
+    private List<EnumFacing> directions = new ArrayList();
+
     @Override
     public void generate(Random random, int cx, int cz, World world, IChunkGenerator chunkGenerator, IChunkProvider chunkProvider)
     {
+        //Init directions list
+        if (directions.isEmpty())
+        {
+            for (EnumFacing dir : EnumFacing.values())
+            {
+                directions.add(dir);
+            }
+        }
+
         // Checks to make sure this is the normal world
         if (isOreGeneratedInWorld(world, chunkGenerator, chunkProvider))
         {
+            //Track blocks placed
             int blocksPlaced = 0;
 
+            //Convert chunk position to block position
             int chunkX = cx << 4;
             int chunkZ = cz << 4;
 
+            //TODO add config option to check timing of world gen, exit if time is too high
             while (blocksPlaced < amountPerChunk)
             {
-                int x = chunkX + random.nextInt(16);
-                int z = chunkZ + random.nextInt(16);
-
+                //Random position
+                int x = chunkX + random.nextInt(15);
+                int z = chunkZ + random.nextInt(15);
                 int y = random.nextInt(Math.max(maxGenerateLevel - minGenerateLevel, 0)) + minGenerateLevel;
 
-                int placed = this.generateBranch(world, random, cx, cz, x, y, z);
-                if (placed <= 0)
+                //Checks to ensure location is still inside chunk
+                int px = x >> 4;
+                int pz = y >> 4;
+                if (px == cx && pz == cz)
                 {
-                    placed = amountPerBranch; //Prevents inf loop
+                    //Generate blocks
+                    int placed = this.generateBranch(world, cx, cz, x, y, z);
+
+                    //Ensures exit condition is met, prevents inf loop
+                    if (placed <= 0)
+                    {
+                        placed = amountPerBranch;
+                    }
+
+                    //Increase block count based on placement
+                    blocksPlaced += placed;
                 }
-                blocksPlaced += placed;
+                //Ensures exit condition of loop
+                else
+                {
+                    blocksPlaced += amountPerBranch;
+                }
             }
         }
     }
 
     /**
-     * Picks a random location in the chunk based on a random rotation and Y value
+     * Generated a branch at location using a breadth first pathfinder
      *
-     * @param world - world
-     * @param rand  - random
-     * @param varX  - randomX
-     * @param varY  - randomY
-     * @param varZ  - randomZ
-     * @return true if it placed blocks
+     * @param world        - world generating the ore branch inside
+     * @param branchStartX - random X to start world generate of branch
+     * @param branchStartY - random Y to start world generate of branch
+     * @param branchStartZ - random Z to start world generate of branch
+     * @return number of blocks placed
      */
-    public int generateBranch(World world, Random rand, int cx, int cz, int varX, int varY, int varZ)
+    public int generateBranch(World world, int cx, int cz, int branchStartX, int branchStartY, int branchStartZ)
     {
+        //Track blocks placed
         int blocksPlaced = 0;
+
+        //Ore generation is a breadth first pathfinder. This allows for more randomized layouts over the vanilla version.
+
         //Positions already pathed
         List<BlockPos> pathed = new ArrayList();
         //Positions to path next
         Queue<BlockPos> toPath = new LinkedList();
 
         //First location to path
-        toPath.add(new BlockPos(varX, varY, varZ));
-
-        List<EnumFacing> directions = new ArrayList();
-        for (EnumFacing dir : EnumFacing.values())
-        {
-            directions.add(dir);
-        }
+        toPath.add(new BlockPos(branchStartX, branchStartY, branchStartZ));
 
         //Breadth first search
         while (!toPath.isEmpty() && blocksPlaced < amountPerBranch)
@@ -92,21 +123,34 @@ public class OreGeneratorOilOre implements IWorldGenerator
                 }
             }
 
-            //Find new locations to place blocks
+            //randomize directions
             Collections.shuffle(directions);
+
+            //Find new blocks to path
             for (EnumFacing direction : directions)
             {
-                //TODO randomize next path
+                //Get position based on direction
                 BlockPos pos = next.add(direction.getFrontOffsetX(), direction.getFrontOffsetY(), direction.getFrontOffsetZ());
+
+                //Ensure we have not pathed, randomize chance of path TODO add randomize settings
                 if (!pathed.contains(pos) && world.rand.nextBoolean())
                 {
+                    //Get chunk position
                     int px = pos.getX() >> 4;
                     int pz = pos.getZ() >> 4;
+
+                    //Validate position is inside chunk
                     boolean insideX = px == cx;
                     boolean insideZ = pz == cz;
                     boolean insideY = pos.getY() >= minGenerateLevel && pos.getY() <= maxGenerateLevel;
-                    if (insideX && insideZ && insideY)
+
+                    //Valid chunk exists, prevents new chunk creation due to mistakes
+                    boolean chunkLoaded = world.isChunkGeneratedAt(px, pz);
+
+                    //Validate based on checks
+                    if (chunkLoaded && insideX && insideZ && insideY)
                     {
+                        //Generate in stone
                         block = world.getBlockState(pos).getBlock();
                         if (block == Blocks.STONE)
                         {
@@ -114,6 +158,7 @@ public class OreGeneratorOilOre implements IWorldGenerator
                         }
                     }
 
+                    //Add position to cache to prevent re-path
                     if (!toPath.contains(pos))
                     {
                         pathed.add(pos);
@@ -124,6 +169,14 @@ public class OreGeneratorOilOre implements IWorldGenerator
         return blocksPlaced;
     }
 
+    /**
+     * Checks if the world generator can run for the world
+     *
+     * @param world
+     * @param generator
+     * @param provider
+     * @return
+     */
     public boolean isOreGeneratedInWorld(World world, IChunkGenerator generator, IChunkProvider provider)
     {
         return generator instanceof ChunkGeneratorOverworld;
