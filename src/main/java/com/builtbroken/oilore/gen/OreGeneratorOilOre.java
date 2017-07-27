@@ -22,36 +22,30 @@ public class OreGeneratorOilOre implements IWorldGenerator
     public int amountPerBranch = 10;
 
     @Override
-    public void generate(Random random, int chunkX, int chunkZ, World world, IChunkGenerator chunkGenerator, IChunkProvider chunkProvider)
+    public void generate(Random random, int cx, int cz, World world, IChunkGenerator chunkGenerator, IChunkProvider chunkProvider)
     {
-        chunkX = chunkX << 4;
-        chunkZ = chunkZ << 4;
-
         // Checks to make sure this is the normal world
-
         if (isOreGeneratedInWorld(world, chunkGenerator, chunkProvider))
         {
-            generate(world, world.rand, chunkX, chunkZ);
-        }
-    }
+            int blocksPlaced = 0;
 
+            int chunkX = cx << 4;
+            int chunkZ = cz << 4;
 
-    public void generate(World world, Random random, int varX, int varZ)
-    {
-        int blocksPlaced = 0;
-        while (blocksPlaced < amountPerChunk)
-        {
-            int x = varX + random.nextInt(16);
-            int z = varZ + random.nextInt(16);
-
-            int y = random.nextInt(Math.max(maxGenerateLevel - minGenerateLevel, 0)) + minGenerateLevel;
-
-            int placed = this.generateBranch(world, random, varX, varZ, x, y, z);
-            if (placed <= 0)
+            while (blocksPlaced < amountPerChunk)
             {
-                placed = amountPerBranch; //Prevents inf loop
+                int x = chunkX + random.nextInt(16);
+                int z = chunkZ + random.nextInt(16);
+
+                int y = random.nextInt(Math.max(maxGenerateLevel - minGenerateLevel, 0)) + minGenerateLevel;
+
+                int placed = this.generateBranch(world, random, cx, cz, x, y, z);
+                if (placed <= 0)
+                {
+                    placed = amountPerBranch; //Prevents inf loop
+                }
+                blocksPlaced += placed;
             }
-            blocksPlaced += placed;
         }
     }
 
@@ -65,7 +59,7 @@ public class OreGeneratorOilOre implements IWorldGenerator
      * @param varZ  - randomZ
      * @return true if it placed blocks
      */
-    public int generateBranch(World world, Random rand, int chunkCornerX, int chunkCornerZ, int varX, int varY, int varZ)
+    public int generateBranch(World world, Random rand, int cx, int cz, int varX, int varY, int varZ)
     {
         int blocksPlaced = 0;
         //Positions already pathed
@@ -106,8 +100,10 @@ public class OreGeneratorOilOre implements IWorldGenerator
                 BlockPos pos = next.add(direction.getFrontOffsetX(), direction.getFrontOffsetY(), direction.getFrontOffsetZ());
                 if (!pathed.contains(pos) && world.rand.nextBoolean())
                 {
-                    boolean insideX = pos.getX() >= chunkCornerX && pos.getX() < (chunkCornerX + 16);
-                    boolean insideZ = pos.getZ() >= chunkCornerZ && pos.getZ() < (chunkCornerZ + 16);
+                    int px = pos.getX() >> 4;
+                    int pz = pos.getZ() >> 4;
+                    boolean insideX = px == cx;
+                    boolean insideZ = pz == cz;
                     boolean insideY = pos.getY() >= minGenerateLevel && pos.getY() <= maxGenerateLevel;
                     if (insideX && insideZ && insideY)
                     {
