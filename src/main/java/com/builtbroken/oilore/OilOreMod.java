@@ -145,7 +145,7 @@ public class OilOreMod
             Item item = Item.REGISTRY.getObject(new ResourceLocation("vefluids:veBucket"));
             if (item != null)
             {
-                event.getRegistry().register(new FluidContainerRecipe(item, item, fluid).setRegistryName(new ResourceLocation(DOMAIN, "fluidBucket_" + item)));
+                event.getRegistry().register(new FluidContainerRecipe(item, item, fluid).setRegistryName(new ResourceLocation(DOMAIN, "fluidBucket")));
             }
         }
     }
